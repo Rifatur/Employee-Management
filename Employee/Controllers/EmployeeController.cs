@@ -126,17 +126,16 @@ namespace Employee.Controllers
 
             
         }
-
-        [HttpGet("{supervisorId}")]
-        public IActionResult GetemployeeBySupervisor(int supervisorId)
+        
+        [HttpGet("Employees-maximum-minimum-salary")]
+        public IActionResult GetEmployeesWithNoAbsentRecords()
         {
-            var employees = _dbContext.tblEmployees
-                .Where(s => s.supervisorId == supervisorId)
-                .ToList();
+            var employeesWithNoAbsentRecords = _dbContext.tblEmployees
+                // Filter employees with no absent rnecords
+                .OrderByDescending(e => e.employeeSalary).ToList();
 
-            return Ok(employees);
+            return Ok(employeesWithNoAbsentRecords);
         }
-
 
         [HttpGet("monthly-report")]
         public async Task<IActionResult> GenerateReport()
@@ -161,16 +160,16 @@ namespace Employee.Controllers
             return Ok(report);
         }
 
-        [HttpGet("GetEmployeesWithNoAbsent")]
-        public IActionResult GetEmployeesWithNoAbsentRecords()
+        [HttpGet("GetBySupervisor/{supervisorId}")]
+        public IActionResult GetemployeeBySupervisor(int supervisorId)
         {
-            var employeesWithNoAbsentRecords = _dbContext.tblEmployees
-                // Filter employees with no absent rnecords
-                .OrderByDescending(e => e.employeeSalary ).ToList();
+            var employees = _dbContext.tblEmployees
+                .Where(s => s.supervisorId == supervisorId)
+                .Select(e => e.employeeName)
+                .ToList();
 
-            return Ok(employeesWithNoAbsentRecords);
+            return Ok(employees);
         }
-
 
 
     }

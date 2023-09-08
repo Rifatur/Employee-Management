@@ -8,7 +8,6 @@ namespace Employee.Data.repository.Interface
         Task<IEnumerable<tblEmployee>> GetEmployees();
         Task<tblEmployee> GetEmployee(int employeeId);
         Task<tblEmployee> GetEmployeeWith3rdHighestSalary();
-
         Task<tblEmployee> AddEmployee(EpmloyeeDtos employee);
         Task<tblEmployee> UpdateEmployee(tblEmployee employee);
         void DeleteEmployee(int employeeId);
