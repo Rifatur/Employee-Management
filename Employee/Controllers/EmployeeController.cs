@@ -132,7 +132,8 @@ namespace Employee.Controllers
         {
             var employeesWithNoAbsentRecords = _dbContext.tblEmployees
                 // Filter employees with no absent rnecords
-                .OrderByDescending(e => e.employeeSalary).ToList();
+                .OrderByDescending(e => e.employeeSalary)             
+                .ToList();
 
             return Ok(employeesWithNoAbsentRecords);
         }
