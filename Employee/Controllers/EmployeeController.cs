@@ -141,24 +141,41 @@ namespace Employee.Controllers
         [HttpGet("monthly-report")]
         public async Task<IActionResult> GenerateReport()
         {
+            //DateTime currentDate = DateTime.Now;
+            //int currentMonth = currentDate.Month;
+
+            //var report = _dbContext.tblEmployeeAttendances
+            //    .Where(a => a.attendanceDate.Month == currentMonth)
+            //    .GroupBy(a => a.employeeId)
+            //    .Select(g => new
+            //    {
+            //        EmployeeName = _dbContext.tblEmployees.FirstOrDefault(e => e.employeeId == g.Key).employeeName,
+            //        MonthName = currentDate.ToString("MMMM"),
+            //        PayableSalary = _dbContext.tblEmployees.FirstOrDefault(e => e.employeeId == g.Key).employeeSalary,
+            //        //TotalPresent = g.Count(a => a.isPresent),
+            //        //TotalAbsent = g.Count(a => a.isAbsent),
+            //        TotalOffday = DateTime.DaysInMonth(currentDate.Year, currentMonth) - g.Count()
+            //    })
+            //    .ToList();
+
+            //return Ok(report);
             DateTime currentDate = DateTime.Now;
             int currentMonth = currentDate.Month;
+            var query = from emp in _dbContext.tblEmployees
+                        join att in _dbContext.tblEmployeeAttendances
+                        on emp.employeeId equals att.employeeId into AttendanceGroup
+                        select new
+                        {
 
-            var report = _dbContext.tblEmployeeAttendances
-                .Where(a => a.attendanceDate.Month == currentMonth)
-                .GroupBy(a => a.employeeId)
-                .Select(g => new
-                {
-                    EmployeeName = _dbContext.tblEmployees.FirstOrDefault(e => e.employeeId == g.Key).employeeName,
-                    MonthName = currentDate.ToString("MMMM"),
-                    PayableSalary = _dbContext.tblEmployees.FirstOrDefault(e => e.employeeId == g.Key).employeeSalary,
-                    //TotalPresent = g.Count(a => a.isPresent),
-                    //TotalAbsent = g.Count(a => a.isAbsent),
-                    TotalOffday = DateTime.DaysInMonth(currentDate.Year, currentMonth) - g.Count()
-                })
-                .ToList();
-
-            return Ok(report);
+                            MonthName = currentDate.ToString("MMMM"),
+                            EmployeName = emp.employeeName,
+                            PayableSalary = emp.employeeSalary,
+                            TotalPresent = AttendanceGroup.Count(a => a.isPresent == 1),
+                            TotalAbsent = AttendanceGroup.Count(a => a.isAbsent == 1),
+                            TotalOffday = AttendanceGroup.Count(a => a.isOffday == 1)
+                            // Include other columns as needed
+                        };
+            return Ok(query.ToList());
         }
 
         [HttpGet("GetBySupervisor/{supervisorId}")]
@@ -171,7 +188,6 @@ namespace Employee.Controllers
 
             return Ok(employees);
         }
-
 
     }
 }
