@@ -130,35 +130,21 @@ namespace Employee.Controllers
         [HttpGet("Employees-maximum-minimum-salary")]
         public IActionResult GetEmployeesWithNoAbsentRecords()
         {
-            var employeesWithNoAbsentRecords = _dbContext.tblEmployees
-                // Filter employees with no absent rnecords
-                .OrderByDescending(e => e.employeeSalary)             
-                .ToList();
 
-            return Ok(employeesWithNoAbsentRecords);
+            var query = from employee in _dbContext.tblEmployees
+                        join attendance in _dbContext.tblEmployeeAttendances
+                        on employee.employeeId equals attendance.employeeId into employeeAttendanceGroup
+                        where employeeAttendanceGroup.All(a => a.isAbsent != 1)
+                        orderby employee.employeeSalary descending // Sort by salary from max to min
+                        select employee;
+
+
+            return Ok(query.ToList());
         }
 
         [HttpGet("monthly-report")]
         public async Task<IActionResult> GenerateReport()
         {
-            //DateTime currentDate = DateTime.Now;
-            //int currentMonth = currentDate.Month;
-
-            //var report = _dbContext.tblEmployeeAttendances
-            //    .Where(a => a.attendanceDate.Month == currentMonth)
-            //    .GroupBy(a => a.employeeId)
-            //    .Select(g => new
-            //    {
-            //        EmployeeName = _dbContext.tblEmployees.FirstOrDefault(e => e.employeeId == g.Key).employeeName,
-            //        MonthName = currentDate.ToString("MMMM"),
-            //        PayableSalary = _dbContext.tblEmployees.FirstOrDefault(e => e.employeeId == g.Key).employeeSalary,
-            //        //TotalPresent = g.Count(a => a.isPresent),
-            //        //TotalAbsent = g.Count(a => a.isAbsent),
-            //        TotalOffday = DateTime.DaysInMonth(currentDate.Year, currentMonth) - g.Count()
-            //    })
-            //    .ToList();
-
-            //return Ok(report);
             DateTime currentDate = DateTime.Now;
             int currentMonth = currentDate.Month;
             var query = from emp in _dbContext.tblEmployees
